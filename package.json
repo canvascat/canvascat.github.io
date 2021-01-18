@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",
-    "build": "vuedx-typecheck . && vite build"
+    "check": "vuedx-typecheck .",
+    "build": "vite build"
   },
   "dependencies": {
     "element-plus": "^1.0.1-beta.27",
