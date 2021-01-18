@@ -41,10 +41,15 @@ export default class Mosaic {
   mouseDownHandler(e: MouseEvent) {
     e.stopImmediatePropagation();
     document.onselectstart = () => false;
+    const { pageX, pageY } = e
+    const { offsetLeft, offsetTop } = this.canvas
+    const { scrollLeft, scrollTop } = this.canvas.parentElement as HTMLElement
+    console.log(pageX, offsetLeft, scrollLeft, pageY, offsetTop, scrollTop)
     this.downPoint = [
-      e.pageX - this.canvas.offsetLeft,
-      e.pageY - this.canvas.offsetTop,
+      pageX - offsetLeft + scrollLeft,
+      pageY - offsetTop + scrollTop,
     ];
+    console.log(this.downPoint)
     this.points = [];
     document.addEventListener('mousemove', this.documentMouseMoveHandle);
     document.addEventListener('mouseup', this.documentMouseUpHandle);
@@ -53,9 +58,12 @@ export default class Mosaic {
   documentMouseMoveHandle(e: MouseEvent) {
     if (!this.downPoint) return;
     e.stopImmediatePropagation();
+    const { pageX, pageY } = e
+    const { offsetLeft, offsetTop, } = this.canvas
+    const { scrollLeft, scrollTop } = this.canvas.parentElement as HTMLElement
     const point: Point = [
-      e.pageX - this.canvas.offsetLeft,
-      e.pageY - this.canvas.offsetTop,
+      pageX - offsetLeft + scrollLeft,
+      pageY - offsetTop + scrollTop,
     ];
     this.dealMosaicXY(point);
   }

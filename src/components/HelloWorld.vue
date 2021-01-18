@@ -29,7 +29,6 @@
     <br />Note @vuedx is still experimental and this setup is provided for early feedback.
   </p>
   <button @click="count++">count is: {{ count }}</button>
-  <el-button @click="openFile">openFile</el-button>
   <p>
     Edit
     <code>components/HelloWorld.vue</code> to test hot module replacement.
@@ -38,19 +37,13 @@
 
 <script lang="ts">
 import { ref, defineComponent } from 'vue'
-import { loadLocalImage } from '../util/mosaic';
 
 export default defineComponent({
   name: 'HelloWorld',
 
   setup: () => {
     const count = ref(0)
-    const openFile = () => {
-      loadLocalImage().then(file => {
-        console.log(file)
-      })
-    }
-    return { count, openFile }
+    return { count }
   }
 })
 </script>

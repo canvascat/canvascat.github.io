@@ -5,11 +5,11 @@
       <el-input-number v-model="mosaicSize"
         @change="mosaicSizeChange"
         :min="4"
-        :max="10"></el-input-number>
+        :max="8"></el-input-number>
     </el-form-item>
     <el-form-item label="笔刷宽度">
       <el-input-number v-model="brushWidth"
-        :min="20"
+        :min="30"
         :step="10"
         :max="100"></el-input-number>
     </el-form-item>
@@ -33,7 +33,7 @@ import Mosaic, { loadLocalImage, MosaicOptions } from '../util/mosaic'
 export default defineComponent({
   name: 'CanavsMosaic',
   setup() {
-    const brushWidth = ref(20)
+    const brushWidth = ref(30)
     const mosaicSize = ref(6)
     const canvasRef = ref(null as null | HTMLCanvasElement)
     const mosaic = ref(null as null | Mosaic)
@@ -50,7 +50,7 @@ export default defineComponent({
       const options: MosaicOptions = Object.create(null)
       options.brushWidth = brushWidth.value
       options.mosaicSize = mosaicSize.value
-      mosaic.value = new Mosaic(canvasRef.value as HTMLCanvasElement)
+      mosaic.value = new Mosaic(canvasRef.value as HTMLCanvasElement, options)
     })
     onBeforeUnmount(() => {
       if (mosaic.value) mosaic.value.destroy()
