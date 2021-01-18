@@ -16,6 +16,8 @@
     <el-form-item>
       <el-button type="primary"
         @click="openFile">选择图片</el-button>
+      <el-button type="primary"
+        @click="downloadImage">下载图片</el-button>
     </el-form-item>
   </el-form>
 
@@ -27,8 +29,9 @@
 </template>
 
 <script lang="ts">
+import { ElMessage } from 'element-plus'
 import { ref, defineComponent, onMounted, onBeforeUnmount, watch } from 'vue'
-import Mosaic, { loadLocalImage, MosaicOptions } from '../util/mosaic'
+import Mosaic, { loadLocalImage, MosaicOptions, download } from '../util/mosaic'
 
 export default defineComponent({
   name: 'CanavsMosaic',
@@ -46,6 +49,14 @@ export default defineComponent({
     function mosaicSizeChange(val: number) {
       if (mosaic.value) mosaic.value.mosaicSize = val
     }
+    function downloadImage() {
+      if (mosaic.value?.inited) {
+        download(canvasRef.value as HTMLCanvasElement)
+        ElMessage.info('文件已开始下载')
+      } else {
+        ElMessage.info('请选择图片')
+      }
+    }
     onMounted(() => {
       const options: MosaicOptions = Object.create(null)
       options.brushWidth = brushWidth.value
@@ -61,6 +72,8 @@ export default defineComponent({
     return {
       mosaicSizeChange,
       openFile,
+      downloadImage,
+
       mosaicSize,
       brushWidth,
       canvasRef

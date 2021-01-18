@@ -12,6 +12,7 @@ export default class Mosaic {
   downPoint: Nullable<Point> = null;
   points: Array<Point> = [];
   ops = [];
+  inited = false;
   // mosaicCount = 4
   mosaicSize = 3;
   brushWidth = 40; // 笔刷宽度
@@ -31,6 +32,7 @@ export default class Mosaic {
     await drawImageToCanvas(this.canvas, file);
     const { width, height } = this.canvas;
     this.originalImgData = this.ctx.getImageData(0, 0, width, height);
+    this.inited = true
   }
 
   destroy() {
@@ -194,3 +196,22 @@ export const drawImageToCanvas = (canvas: HTMLCanvasElement, file: Blob) =>
     };
     img.src = url;
   });
+
+export const download = (canvas: HTMLCanvasElement) => {
+  const url = canvas.toDataURL('image/png')
+  const link = document.createElement('a')
+  link.download = `导出图片${Date.now()}.png`
+  link.href = url
+  link.click()
+}
+// export const download = (canvas: HTMLCanvasElement) => new Promise((resolve, reject) => {
+//   canvas.toBlob((blob) => {
+//     if (!blob) return reject();
+//     const url = URL.createObjectURL(blob)
+//     const link = document.createElement('a')
+//     link.href = url
+//     link.click()
+//     URL.revokeObjectURL(url)
+//     resolve(true)
+//   })  
+// })
