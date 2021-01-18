@@ -14,5 +14,5 @@ vuedx-typecheck 并不会使用 `tsconfig.include`
 
 ## TODO
 
-[ ] vite markdown plugin
-[ ] 样式布局
+- [ ] vite markdown plugin
+- [ ] 样式布局
