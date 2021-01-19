@@ -3,7 +3,7 @@ import ElementPlus from 'element-plus'
 import App from './App.vue'
 import router from './router'
 import 'element-plus/lib/theme-chalk/index.css'
-import './assets/common.styl'
+import './assets/common.scss'
 
 const app = createApp(App).use(router).use(ElementPlus)
 app.mount('#app')

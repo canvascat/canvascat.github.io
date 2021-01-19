@@ -21,7 +21,7 @@
     </el-form-item>
   </el-form>
 
-  <div class="canvas-wrapper">
+  <div class="wrapper">
     <canvas ref="canvasRef"
       width="400"
       height="400"></canvas>
@@ -38,8 +38,8 @@ export default defineComponent({
   setup() {
     const brushWidth = ref(30)
     const mosaicSize = ref(6)
-    const canvasRef = ref(null as null | HTMLCanvasElement)
-    const mosaic = ref(null as null | Mosaic)
+    const canvasRef = ref(null as Nullable<HTMLCanvasElement>)
+    const mosaic = ref(null as Nullable<Mosaic>)
 
     function openFile() {
       loadLocalImage().then(file => {
@@ -81,9 +81,12 @@ export default defineComponent({
   }
 })
 </script>
-
-<style lang="stylus">
-.canvas-wrapper {
+<style lang="scss" scoped>
+.wrapper {
   overflow: auto;
+  &:fullscreen {
+    background-color: #fff;
+    overflow: hidden;
+  }
 }
 </style>
