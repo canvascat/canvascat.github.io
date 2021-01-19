@@ -1,3 +1,5 @@
+import { isEqual } from 'lodash'
+
 type Point = [number, number];
 
 export interface MosaicOptions {
@@ -83,6 +85,7 @@ export default class Mosaic {
     //   },
     //   path: this.points
     // })
+    console.log(this.points)
     this.points = [];
   }
   dealMosaicXY(point: Point) {
@@ -95,10 +98,8 @@ export default class Mosaic {
     y0 = +Math.round((y0 - offSet) / this.mosaicSize / 2) * this.mosaicSize * 2;
     point = [x0, y0];
     // 记录像素轨迹
-    const lastXY = this.points.slice(-1)[0];
-    if (lastXY && lastXY[0] === x0 && lastXY[1] === y0) return;
-    if (this.points.findIndex((xy) => xy[0] === x0 && xy[1] === y0) !== -1)
-      return;
+    const [lastPoint] = this.points.slice(-1);
+    if (isEqual(lastPoint, point) || this.points.find((xy) => isEqual(xy, point))) return;
     this.points.push(point);
     this.drawMosaic(point);
   }
@@ -117,12 +118,12 @@ export default class Mosaic {
     let modifyPxData = modifyImgData.data;
     const [x0, y0] = point;
     for (
-      var x1 = x0 - size * num, maxX1 = x0 + size * num + offSet;
+      let x1 = x0 - size * num, maxX1 = x0 + size * num + offSet;
       x1 < maxX1;
       x1 += 2 * size
     ) {
       for (
-        var y1 = y0 - size * num, maxY1 = y0 + size * num + offSet;
+        let y1 = y0 - size * num, maxY1 = y0 + size * num + offSet;
         y1 < maxY1;
         y1 += 2 * size
       ) {
@@ -178,15 +179,29 @@ export const loadLocalImage = () =>
     input.click();
   });
 
-export const drawImageToCanvas = (canvas: HTMLCanvasElement, file: Blob) =>
+interface DrawImageOptions {
+  width?: number,
+  height?: number
+}
+
+// 图片平铺不缩放
+export const drawImageToCanvas = (canvas: Nullable<HTMLCanvasElement>, file: Blob, options: DrawImageOptions = {}) =>
   new Promise((resolve: (canvas: HTMLCanvasElement) => void, reject) => {
+    if (!canvas) return reject()
     const url = URL.createObjectURL(file);
     const img = new Image();
     img.onload = () => {
-      const { naturalWidth: width, naturalHeight: height } = img;
+      const { naturalWidth: dWidth, naturalHeight: dHeight } = img;
       const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+      const [width, height] = [options?.width ?? dWidth, options?.height ?? dHeight];
       Object.assign(canvas, { width, height });
-      ctx.drawImage(img, 0, 0, width, height);
+      for (let i = 0; i < Math.ceil(height / dHeight); i++) {
+        for (let j = 0; j < Math.ceil(width / dWidth); j++) {
+          const [dx, dy] = [j * dWidth, i * dHeight]
+          const [sWidth, sHeight] = [Math.min(width - dx, dWidth), Math.min(height - dy, dHeight)]
+          ctx.drawImage(img, 0, 0, sWidth, sHeight, dx, dy, sWidth, sHeight);
+        }
+      }
       URL.revokeObjectURL(url);
       resolve(canvas);
     };
