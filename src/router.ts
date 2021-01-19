@@ -6,6 +6,11 @@ const routes: Array<RouteRecordRaw> = [
     redirect: '/CanvasMosaic'
   },
   {
+    path: '/ImageEditor',
+    name: 'ImageEditor',
+    component: () => import('./components/ImageEditor.vue')
+  },
+  {
     path: '/HelloWorld',
     name: 'HelloWorld',
     component: () => import('./components/HelloWorld.vue')
