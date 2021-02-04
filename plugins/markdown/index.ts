@@ -1,7 +1,7 @@
 // import MarkdownIt from 'markdown-it'
 
 import { Plugin} from 'vite'
-import { stripScript, stripTemplate, genInlineComponentText } from './util';
+import { stripScript, stripTemplate, stripStyle, genInlineComponentText } from './util';
 import md from './config';
 // import { promisify } from 'util';
 // import { writeFile } from 'fs';
@@ -20,6 +20,7 @@ function compileMdFileToVueJS (source) {
   let id = 0 // demo 的 id
   let output = [] // 输出的内容
   let start = 0 // 字符串开始位置
+  let pageStyle = ''
 
   let commentStart = content.indexOf(startTag)
   let commentEnd = content.indexOf(endTag, commentStart + startTagLen)
@@ -29,6 +30,7 @@ function compileMdFileToVueJS (source) {
     const commentContent = content.slice(commentStart + startTagLen, commentEnd)
     const html = stripTemplate(commentContent)
     const script = stripScript(commentContent)
+    pageStyle += stripStyle(commentContent) + '\n'
     let demoComponentContent = genInlineComponentText(html, script)
     const demoComponentName = `element-demo${id}`
     output.push(`<template #source><${demoComponentName} /></template>`)
@@ -67,6 +69,9 @@ function compileMdFileToVueJS (source) {
     </section>
   </template>
   ${pageScript}
+  <style>
+  ${pageStyle}
+  </style>
   `
 
   return result
