@@ -1,14 +1,22 @@
-// import MarkdownIt from 'markdown-it'
-
-import { Plugin} from 'vite'
+import { Plugin } from 'vite'
 import { stripScript, stripTemplate, stripStyle, genInlineComponentText } from './util';
 import md from './config';
+import { fromPairs } from 'lodash';
 // import { promisify } from 'util';
 // import { writeFile } from 'fs';
 // import { basename, extname, join } from 'path';
 // import { parseVueRequest } from '@vitejs/plugin-vue';
 
-function compileMdFileToVueJS (source) {
+function compileMdFileToVueJS (source: string) {
+  if (source.startsWith('---')) {
+    const index = source.indexOf('---', 3)
+    const descFragment = source.substring(5, index - 1)
+    const startIndex = source.substr(index + 3).search(/\S/) + index + 3
+    // Object.fromEntries()
+    const desc = fromPairs(descFragment.split('\n').map(n => n.trim().split(': ')))
+    console.log(desc)
+    source = source.substr(startIndex)
+  }
   const content = md.render(source)
 
   const startTag = '<!--element-demo:'
@@ -86,7 +94,6 @@ export default function markdownPlugin():Plugin {
 
     transform (src, id) {
       // const { filename, query } = parseVueRequest(id)
-      console.log(id)
       // if (id.includes('?vue')) console.log(src)
       if (fileRegex.test(id)) {
         // src = md.render(src)
