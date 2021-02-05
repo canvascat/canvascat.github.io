@@ -1,0 +1,92 @@
+html.dark {
+  color: #c9d1d9;
+  background: #0d1117;
+  ::selection {
+    background-color: #327bd4;
+    color: #ffffff;
+  }
+  ::-webkit-scrollbar-thumb {
+    border-radius: 2px;
+    background-color: rgba(153, 153, 153, 0.6);
+  }
+  img {
+    filter: brightness(0.8) contrast(1.2);
+  }
+  .footer a {
+    color: #58a6ff;
+  }
+  .list-category div a {
+    border-bottom: 1px solid #8b949e;
+  }
+
+  .hover-underline:after {
+    background-color: #c9d1d9;
+  }
+  .list-post {
+    li .date {
+      color: #8b949e;
+    }
+    li .categories a {
+      color: #8b949e;
+    }
+  }
+  .page-post {
+    .title {
+      color: #ffffff;
+    }
+    img {
+      box-shadow: none;
+    }
+    code {
+      background-color: rgba(240, 246, 252, 0.15);
+      color: #c9d1d9;
+    }
+    a {
+      color: #58a6ff;
+      border-bottom: 1px solid #58a6ff;
+    }
+    blockquote {
+      border-left: 3px solid var(--border-color);
+      background-color: rgba(59, 67, 75, 0.15);
+      color: #8b949e;
+    }
+    .table-container {
+      border: 1px solid var(--border-color);
+    }
+    table {
+      border: 1px solid var(--border-color);
+    }
+    tr {
+      border-bottom: 1px solid var(--border-color);
+    }
+    hr {
+      background-color: #30363d;
+    }
+    table tr:nth-child(even) {
+      background-color: #161b22;
+    }
+
+    iframe {
+      opacity: 0.8;
+    }
+  }
+  .page-search {
+    #search-input {
+      color: #f0f6fc;
+      border: 1px solid #21262d;
+      &::-webkit-input-placeholder {
+        color: #c2c3c5;
+      }
+    }
+    .list-search .content {
+      color: #a6aeb7;
+    }
+  }
+  #to-top {
+    opacity: 0.6;
+    background-color: #4c4c4c;
+    > span:last-child {
+      background-color: #4c4c4c;
+    }
+  }
+}
