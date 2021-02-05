@@ -2,7 +2,7 @@
   <header class="header">
     <img @click="setDarkTheme()" class="logo" src="https://avatars1.githubusercontent.com/u/31235016?s=60&v=4" alt="logo"/>
     <nav class="menu">
-      <a :href="m.url" v-for="m in menus" class="hover-underline" :title="m.title" :key="m.url">{{m.title}}</a>
+      <router-link :to="m.url" v-for="m in menus" class="hover-underline" :title="m.title" :key="m.url">{{m.title}}</router-link>
     </nav>
   </header>
   <main>
