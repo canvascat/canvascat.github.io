@@ -1,0 +1,1 @@
+#htmldemo{height:30px;width:30px;background-color:#00aa9a;animation-name:moveX;animation-duration:1s;animation-timing-function:linear;animation-iteration-count:infinite;animation-direction:alternate;animation-fill-mode:both}@keyframes moveX{0%{transform:translateX(0)}100%{transform:translateX(100px)}}
