@@ -1,57 +1,39 @@
 <template>
-  <el-container>
-    <el-header>
-      <h1>vue demos</h1>
-    </el-header>
-    <el-container>
-      <el-aside width="200px">
-        <el-menu router
-          default-active="/ImageEditor">
-          <el-menu-item index="/ImageEditor">
-            <i class="el-icon-menu"></i>
-            <template #title>ImageEditor</template>
-          </el-menu-item>
-          <el-menu-item index="/HelloWorld">
-            <i class="el-icon-document"></i>
-            <template #title>HelloWorld</template>
-          </el-menu-item>
-          <el-menu-item index="/CanvasMosaic">
-            <i class="el-icon-setting"></i>
-            <template #title>CanvasMosaic</template>
-          </el-menu-item>
-        </el-menu>
-      </el-aside>
-      <el-main>
-        <router-view />
-      </el-main>
-    </el-container>
-  </el-container>
+  <header class="header">
+    <img @click="setDarkTheme()" class="logo" src="https://avatars1.githubusercontent.com/u/31235016?s=60&v=4" alt="logo"/>
+    <nav class="menu">
+      <a :href="m.url" v-for="m in menus" class="hover-underline" :title="m.title" :key="m.url">{{m.title}}</a>
+    </nav>
+  </header>
+  <main>
+    <article>
+      <router-view></router-view>
+    </article>
+  </main>
+  <footer class="footer">
+    <span>Theme By</span>
+    <a href="https://github.com/TMaize/tmaize-blog">TMaize</a>
+  </footer>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import { menus } from '@/assets/config'
+import { setDarkTheme } from '@/util/util'
 
 export default defineComponent({
   name: 'App',
-  components: {}
+  components: {
+    // TestTpl
+  },
+  setup () {
+    return {
+      menus,
+      setDarkTheme
+    }
+  }
 })
 </script>
 
 <style lang="scss" scoped>
-.el-header {
-  border-bottom: 1px solid #dcdfe6;
-  display: flex;
-  align-items: center;
-}
-.el-aside {
-  // border-right: 1px solid #dcdfe6;
-  // display: flex;
-}
-.el-menu {
-  height: 100%;
-  user-select: none;
-}
-h1 {
-  margin: 0;
-}
 </style>

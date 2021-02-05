@@ -3,7 +3,12 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    redirect: '/CanvasMosaic'
+    redirect: '/theme'
+  },
+  {
+    path: '/theme',
+    name: 'Theme',
+    component: () => import('./posts/theme.md')
   },
   {
     path: '/ImageEditor',
@@ -11,15 +16,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('./components/ImageEditor.vue')
   },
   {
-    path: '/HelloWorld',
-    name: 'HelloWorld',
-    component: () => import('./components/HelloWorld.vue')
-  },
-  {
     path: '/CanvasMosaic',
     name: 'CanvasMosaic',
     component: () => import('./components/CanvasMosaic.vue')
-  }
+  },
+  { path: '/:pathMatch(.*)*', name: 'NotFound', component: import('./pages/404.md') }
 ]
 
 const router = createRouter({
