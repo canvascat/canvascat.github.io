@@ -21,7 +21,7 @@
     </el-form-item>
   </el-form>
 
-  <div class="wrapper">
+  <div class="canvas-wrapper">
     <canvas ref="canvasRef"
       width="400"
       height="400"></canvas>
@@ -31,15 +31,15 @@
 <script lang="ts">
 import { ElMessage } from 'element-plus'
 import { ref, defineComponent, onMounted, onBeforeUnmount, watch } from 'vue'
-import Mosaic, { loadLocalImage, MosaicOptions, download } from '../util/mosaic'
+import Mosaic, { loadLocalImage, MosaicOptions, download } from '@/util/mosaic'
 
 export default defineComponent({
   name: 'CanavsMosaic',
   setup() {
     const brushWidth = ref(30)
     const mosaicSize = ref(6)
-    const canvasRef = ref(null as Nullable<HTMLCanvasElement>)
-    const mosaic = ref(null as Nullable<Mosaic>)
+    const canvasRef = ref(null as null | HTMLCanvasElement)
+    const mosaic = ref(null as null | Mosaic)
 
     function openFile() {
       loadLocalImage().then(file => {
@@ -81,12 +81,9 @@ export default defineComponent({
   }
 })
 </script>
-<style lang="scss" scoped>
-.wrapper {
+
+<style lang="stylus">
+.canvas-wrapper {
   overflow: auto;
-  &:fullscreen {
-    background-color: #fff;
-    overflow: hidden;
-  }
 }
 </style>
