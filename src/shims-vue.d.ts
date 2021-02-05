@@ -4,4 +4,10 @@ declare module '*.vue' {
   export default component
 }
 
-declare type Nullable<T> = T | null;
+declare module '*.md' {
+  import { defineComponent } from 'vue'
+  const component: ReturnType<typeof defineComponent>
+  export default component
+}
+
+declare type Nullable<T> = T | null
