@@ -212,6 +212,19 @@ export const drawImageToCanvas = (canvas: Nullable<HTMLCanvasElement>, file: Blo
     img.src = url;
   });
 
+export const drawCanvas = (canvas: HTMLCanvasElement, img: HTMLImageElement) => {
+  const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+  const { naturalWidth: dWidth, naturalHeight: dHeight } = img;
+  const [width, height] = [dWidth, dHeight];
+  Object.assign(canvas, { width, height });
+  for (let i = 0; i < Math.ceil(height / dHeight); i++) {
+    for (let j = 0; j < Math.ceil(width / dWidth); j++) {
+      const [dx, dy] = [j * dWidth, i * dHeight]
+      ctx.drawImage(img, dx, dy)
+    }
+  }
+}
+
 export const download = (canvas: HTMLCanvasElement) => {
   const url = canvas.toDataURL('image/png')
   const link = document.createElement('a')

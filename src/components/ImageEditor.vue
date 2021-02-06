@@ -13,29 +13,93 @@
     </el-form-item>
   </el-form>
 
-  <div class="wrapper" ref="wrapRef">
+  <div class="wrapper" ref="wrapRef" @mousedown.once="startCapture">
+    <img src="../assets/img/test.png" alt="" style="display: none;">
     <canvas ref="canvasRef"
       width="400"
       height="400"></canvas>
+    <div class="capture-layer" :style="captureLayerStyle" @mousedown="startMove">
+      <i v-for="p in RESIZE_POINTS"
+        @mousedown.prevent="startResize($event, p)"
+        :key="p.position.join()"
+        :style="p.position.reduce((o, p) => Object.assign(o, { [p]: '-3px' }), { cursor: p.cursor })"
+        class="resize-point"/>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { ElMessage } from 'element-plus'
-import { ref, defineComponent, onMounted, onBeforeUnmount, watch } from 'vue'
-import { loadLocalImage, drawImageToCanvas, download } from '../util/mosaic'
+import { cloneDeep } from 'lodash'
+import { ref, defineComponent, onMounted, onBeforeUnmount, watch, reactive, computed } from 'vue'
+import { loadLocalImage, drawImageToCanvas, download, drawCanvas } from '@/util/mosaic'
+import { createCSSRule, createStyleSheet } from '@/util/dom'
+
+type Point = {
+  x: number,
+  y: number
+}
+type CaptureLayer = {
+  x: number,
+  y: number,
+  w: number,
+  h: number
+}
+type BoundItem = {
+  min: number,
+  max: number
+}
+type Bound = {
+  x: BoundItem,
+  y: BoundItem
+}
+
+type CaptureActionType = 'CREATE' | 'MOVE' | 'RESIZE'
+
+type ResizePointPosition = 'top' | 'right' | 'bottom' | 'left'
+type ResizePoint = {
+  position: Array<ResizePointPosition>,
+  cursor: 'ew-resize' | 'ns-resize' | 'nesw-resize' | 'nwse-resize'
+}
+
+const RESIZE_POINTS: Array<ResizePoint> = [
+  { position: ['top'], cursor: 'ns-resize' },
+  { position: ['bottom'], cursor: 'ns-resize' },
+  { position: ['left'], cursor: 'ew-resize' },
+  { position: ['right'], cursor: 'ew-resize' },
+  { position: ['top', 'left'], cursor: 'nwse-resize' },
+  { position: ['bottom', 'right'], cursor: 'nwse-resize' },
+  { position: ['top', 'right'], cursor: 'nesw-resize' },
+  { position: ['bottom', 'left'], cursor: 'nesw-resize' }
+]
 
 export default defineComponent({
   name: 'ImageEditor',
   setup() {
     const canvasRef = ref(null as Nullable<HTMLCanvasElement>)
     const wrapRef = ref(null as Nullable<HTMLDivElement>)
+    const captureLayer: CaptureLayer = reactive({ x: 0, y: 0, h: 0, w: 0 })
+    let action: Nullable<CaptureActionType> = null
+    let cursorDownPoint: Nullable<Point> = null
+    let cloneCaptureLayer = cloneDeep(captureLayer)
+    const bound: Bound = { x: { min: 0, max: 0 }, y: { min: 0, max: 0 }}
+    let resizeMode: Array<ResizePointPosition> = []
+    let stylesheet: Nullable<HTMLStyleElement> = null;
+
+    // CSSStyleDeclaration
+    const captureLayerStyle = computed(() => {
+      const { x, y, h, w } = captureLayer;
+      const [left, top, height, width] = [x, y, h, w].map(n => `${n}px`);
+      const style = { left, top, height, width, border: '0' };
+      if (h > 0 && w > 0) style.border = '1px solid skyblue';
+      return style
+    })
 
     function openFile() {
       loadLocalImage().then(file => {
         const { width, height } = screen
-        requestFullscreen()
         drawImageToCanvas(canvasRef.value, file, { width, height })
+        requestFullscreen()
       })
     }
     function downloadImage() {
@@ -43,14 +107,98 @@ export default defineComponent({
       ElMessage.info('文件已开始下载')
     }
     function requestFullscreen() {
+      if (!canvasRef.value) return
+      drawCanvas(canvasRef.value, (wrapRef.value as HTMLDivElement).querySelector('img') as HTMLImageElement)
       wrapRef.value?.requestFullscreen()
-      // const { width, height } = screen
+      const { width, height } = canvasRef.value
+      bound.x.max = width
+      bound.y.max = height
       // Object.assign(canvasRef.value, { width, height })
       // console
     }
     function handleFullscreenchange(e: Event) {
       (e.target as HTMLDivElement).classList[document.fullscreenElement ? 'add' : 'remove']('fullscreen')
     }
+
+    function startCapture(e: MouseEvent) {
+      const { x, y } = e
+      Object.assign(captureLayer, { x, y })
+      action = 'CREATE'
+      createCSSRule('*', `cursor: crosshair !important;`, (stylesheet = createStyleSheet()));
+      startAction(e)
+    }
+
+    function startMove (e: MouseEvent) {
+      action = 'MOVE'
+      createCSSRule('*', `cursor: move !important;`, (stylesheet = createStyleSheet()));
+      startAction(e)
+    }
+
+    function startResize (e: MouseEvent, { position, cursor}: ResizePoint) {
+      action = 'RESIZE'
+      resizeMode = position
+      createCSSRule('*', `cursor: ${cursor} !important;`, (stylesheet = createStyleSheet()));
+      startAction(e)
+    }
+
+    function startAction (e: MouseEvent) {
+      cloneCaptureLayer = cloneDeep(captureLayer)
+      e.stopImmediatePropagation()
+      const { x, y } = e
+      cursorDownPoint = { x, y }
+      document.addEventListener('mousemove', onMousemoveDocument)
+      document.addEventListener('mouseup', onMouseupDocument)
+      document.onselectstart = () => false;
+    }
+
+    function onMousemoveDocument(e: MouseEvent) {
+      if (!cursorDownPoint || !action) return;
+      const { x: x0, y: y0 } = cursorDownPoint;
+      const { x: x1, y: y1 } = e;
+      const [dx, dy] = [x1 - x0, y1 - y0]
+      switch (action) {
+        case 'CREATE':
+          captureLayer.w = Math.abs(dx)
+          captureLayer.h = Math.abs(dy)
+          captureLayer.x = Math.min(x0, x1)
+          captureLayer.y = Math.min(y0, y1)          
+          break;
+        case 'MOVE': {
+          const { x: x2, y: y2 } = cloneCaptureLayer
+          const { h, w } = captureLayer
+          captureLayer.x = Math.min(Math.max(x2 + dx, bound.x.min), bound.x.max - w)
+          captureLayer.y = Math.min(Math.max(y2 + dy, bound.y.min), bound.y.max - h)
+          break;
+        }
+        case 'RESIZE': {
+          const { h: h2, y: y2, w: w2, x: x2 } = cloneCaptureLayer
+          if (resizeMode.includes('top')) {
+            captureLayer.y = Math.min(y1, y2 + h2)
+            captureLayer.h = Math.abs(y2 - y1 + h2)
+          } else if (resizeMode.includes('bottom')) {
+            captureLayer.y = Math.min(y1, y2)
+            captureLayer.h = Math.abs(y1 - y2)
+          }
+          if (resizeMode.includes('left')) {
+            captureLayer.x = Math.min(x1, x2 + w2)
+            captureLayer.w = Math.abs(x2 - x1 + w2)
+          } else if (resizeMode.includes('right')){
+            captureLayer.x = Math.min(x1, x2)
+            captureLayer.w = Math.abs(x1 - x2)
+          }
+        }
+        default:
+          break;
+      }
+    }
+    function onMouseupDocument(e: MouseEvent) {
+      cursorDownPoint = null;
+      document.onselectstart = null
+      stylesheet?.parentNode?.removeChild(stylesheet)
+      document.removeEventListener('mousemove', onMousemoveDocument)
+      document.removeEventListener('mouseup', onMouseupDocument)
+    }
+
     onMounted(() => {
       wrapRef.value?.addEventListener('fullscreenchange', handleFullscreenchange)
     })
@@ -61,6 +209,12 @@ export default defineComponent({
       openFile,
       downloadImage,
       requestFullscreen,
+      startCapture,
+      startMove,
+      startResize,
+
+      captureLayerStyle,
+      RESIZE_POINTS,
 
       canvasRef,
       wrapRef
@@ -72,10 +226,27 @@ export default defineComponent({
 .wrapper {
   overflow: auto;
   display: none;
+  position: relative;
   &:fullscreen {
     display: block;
     background-color: #fff;
     overflow: hidden;
+    cursor: crosshair;
   }
+}
+.capture-layer {
+  position: absolute;
+  box-shadow: 0 0 0 9999px rgba($color: #000, $alpha: 0.4);
+  z-index: 1;
+  cursor: move;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.resize-point {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  background-color: skyblue;
 }
 </style>

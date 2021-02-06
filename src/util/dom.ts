@@ -88,3 +88,23 @@ export function removeClass(el: HTMLElement, cls: string): void {
 }
 
 export const stop = (e: Event) => e.stopPropagation()
+
+
+let _sharedStyleSheet: HTMLStyleElement | null = null;
+function getSharedStyleSheet(): HTMLStyleElement {
+	return (_sharedStyleSheet ??= createStyleSheet());
+}
+
+export function createStyleSheet(container: HTMLElement = document.getElementsByTagName('head')[0]): HTMLStyleElement {
+	let style = document.createElement('style');
+	// style.type = 'text/css';
+	style.media = 'screen';
+	container.appendChild(style);
+	return style;
+}
+
+export function createCSSRule(selector: string, cssText: string, style: HTMLStyleElement = getSharedStyleSheet()): void {
+	if (!style || !cssText) return;
+
+	(<CSSStyleSheet>style.sheet).insertRule(selector + '{' + cssText + '}', 0);
+}
