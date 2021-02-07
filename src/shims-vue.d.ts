@@ -11,3 +11,11 @@ declare module '*.md' {
 }
 
 declare type Nullable<T> = T | null
+
+/**
+ * 类型“MediaDevices”上不存在属性“getDisplayMedia”。
+ * https://github.com/microsoft/TypeScript/issues/33232
+ */
+declare interface MediaDevices {
+  getDisplayMedia(constraints?: MediaStreamConstraints): Promise<MediaStream>;
+}
