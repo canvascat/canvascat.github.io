@@ -1,4 +1,5 @@
-import { isEqual } from 'lodash'
+import { isEqual } from 'lodash';
+import { sleep } from './util';
 
 type Point = [number, number];
 
@@ -34,7 +35,7 @@ export default class Mosaic {
     await drawImageToCanvas(this.canvas, file);
     const { width, height } = this.canvas;
     this.originalImgData = this.ctx.getImageData(0, 0, width, height);
-    this.inited = true
+    this.inited = true;
   }
 
   destroy() {
@@ -45,15 +46,15 @@ export default class Mosaic {
   mouseDownHandler(e: MouseEvent) {
     e.stopImmediatePropagation();
     document.onselectstart = () => false;
-    const { pageX, pageY } = e
-    const { offsetLeft, offsetTop } = this.canvas
-    const { scrollLeft, scrollTop } = this.canvas.parentElement as HTMLElement
-    console.log(pageX, offsetLeft, scrollLeft, pageY, offsetTop, scrollTop)
+    const { pageX, pageY } = e;
+    const { offsetLeft, offsetTop } = this.canvas;
+    const { scrollLeft, scrollTop } = this.canvas.parentElement as HTMLElement;
+    console.log(pageX, offsetLeft, scrollLeft, pageY, offsetTop, scrollTop);
     this.downPoint = [
       pageX - offsetLeft + scrollLeft,
       pageY - offsetTop + scrollTop,
     ];
-    console.log(this.downPoint)
+    console.log(this.downPoint);
     this.points = [];
     document.addEventListener('mousemove', this.documentMouseMoveHandle);
     document.addEventListener('mouseup', this.documentMouseUpHandle);
@@ -62,9 +63,9 @@ export default class Mosaic {
   documentMouseMoveHandle(e: MouseEvent) {
     if (!this.downPoint) return;
     e.stopImmediatePropagation();
-    const { pageX, pageY } = e
-    const { offsetLeft, offsetTop, } = this.canvas
-    const { scrollLeft, scrollTop } = this.canvas.parentElement as HTMLElement
+    const { pageX, pageY } = e;
+    const { offsetLeft, offsetTop } = this.canvas;
+    const { scrollLeft, scrollTop } = this.canvas.parentElement as HTMLElement;
     const point: Point = [
       pageX - offsetLeft + scrollLeft,
       pageY - offsetTop + scrollTop,
@@ -85,7 +86,7 @@ export default class Mosaic {
     //   },
     //   path: this.points
     // })
-    console.log(this.points)
+    console.log(this.points);
     this.points = [];
   }
   dealMosaicXY(point: Point) {
@@ -99,7 +100,11 @@ export default class Mosaic {
     point = [x0, y0];
     // 记录像素轨迹
     const [lastPoint] = this.points.slice(-1);
-    if (isEqual(lastPoint, point) || this.points.find((xy) => isEqual(xy, point))) return;
+    if (
+      isEqual(lastPoint, point) ||
+      this.points.find((xy) => isEqual(xy, point))
+    )
+      return;
     this.points.push(point);
     this.drawMosaic(point);
   }
@@ -180,25 +185,35 @@ export const loadLocalImage = () =>
   });
 
 interface DrawImageOptions {
-  width?: number,
-  height?: number
+  width?: number;
+  height?: number;
 }
 
 // 图片平铺不缩放
-export const drawImageToCanvas = (canvas: Nullable<HTMLCanvasElement>, file: Blob, options: DrawImageOptions = {}) =>
+export const drawImageToCanvas = (
+  canvas: Nullable<HTMLCanvasElement>,
+  file: Blob,
+  options: DrawImageOptions = {}
+) =>
   new Promise((resolve: (canvas: HTMLCanvasElement) => void, reject) => {
-    if (!canvas) return reject()
+    if (!canvas) return reject();
     const url = URL.createObjectURL(file);
     const img = new Image();
     img.onload = () => {
       const { naturalWidth: dWidth, naturalHeight: dHeight } = img;
       const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
-      const [width, height] = [options?.width ?? dWidth, options?.height ?? dHeight];
+      const [width, height] = [
+        options?.width ?? dWidth,
+        options?.height ?? dHeight,
+      ];
       Object.assign(canvas, { width, height });
       for (let i = 0; i < Math.ceil(height / dHeight); i++) {
         for (let j = 0; j < Math.ceil(width / dWidth); j++) {
-          const [dx, dy] = [j * dWidth, i * dHeight]
-          const [sWidth, sHeight] = [Math.min(width - dx, dWidth), Math.min(height - dy, dHeight)]
+          const [dx, dy] = [j * dWidth, i * dHeight];
+          const [sWidth, sHeight] = [
+            Math.min(width - dx, dWidth),
+            Math.min(height - dy, dHeight),
+          ];
           ctx.drawImage(img, 0, 0, sWidth, sHeight, dx, dy, sWidth, sHeight);
         }
       }
@@ -212,26 +227,29 @@ export const drawImageToCanvas = (canvas: Nullable<HTMLCanvasElement>, file: Blo
     img.src = url;
   });
 
-export const drawCanvas = (canvas: HTMLCanvasElement, img: HTMLImageElement) => {
+export const drawCanvas = (
+  canvas: HTMLCanvasElement,
+  img: HTMLImageElement
+) => {
   const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
   const { naturalWidth: dWidth, naturalHeight: dHeight } = img;
   const [width, height] = [dWidth, dHeight];
   Object.assign(canvas, { width, height });
   for (let i = 0; i < Math.ceil(height / dHeight); i++) {
     for (let j = 0; j < Math.ceil(width / dWidth); j++) {
-      const [dx, dy] = [j * dWidth, i * dHeight]
-      ctx.drawImage(img, dx, dy)
+      const [dx, dy] = [j * dWidth, i * dHeight];
+      ctx.drawImage(img, dx, dy);
     }
   }
-}
+};
 
 export const download = (canvas: HTMLCanvasElement) => {
-  const url = canvas.toDataURL('image/png')
-  const link = document.createElement('a')
-  link.download = `导出图片${Date.now()}.png`
-  link.href = url
-  link.click()
-}
+  const url = canvas.toDataURL('image/png');
+  const link = document.createElement('a');
+  link.download = `导出图片${Date.now()}.png`;
+  link.href = url;
+  link.click();
+};
 // export const download = (canvas: HTMLCanvasElement) => new Promise((resolve, reject) => {
 //   canvas.toBlob((blob) => {
 //     if (!blob) return reject();
@@ -241,5 +259,24 @@ export const download = (canvas: HTMLCanvasElement) => {
 //     link.click()
 //     URL.revokeObjectURL(url)
 //     resolve(true)
-//   })  
+//   })
 // })
+
+/** 绘制屏幕截图到 canvas */
+export const darwScreen = (canvas: HTMLCanvasElement) =>
+  navigator.mediaDevices
+    .getDisplayMedia({ video: true })
+    .then(async (stream) => {
+      const $video = document.createElement('video');
+      $video.style.display = 'none';
+      $video.autoplay = true;
+      document.documentElement.appendChild($video);
+      $video.srcObject = stream;
+      await sleep(20);
+      const { videoHeight: height, videoWidth: width } = $video;
+      Object.assign(canvas, { height, width });
+      const ctx = <CanvasRenderingContext2D>canvas.getContext('2d');
+      ctx.drawImage($video, 0, 0);
+      // sleep(1000).then(() => $video.parentNode?.removeChild($video));
+      return ctx;
+    });
