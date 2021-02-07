@@ -10,6 +10,7 @@
         @click="downloadImage">下载图片</el-button>
       <el-button type="primary"
         @click="requestFullscreen">全屏</el-button>
+      <el-button @click="screenShot">截图</el-button>
     </el-form-item>
   </el-form>
 
@@ -32,7 +33,7 @@
 import { ElMessage } from 'element-plus'
 import { cloneDeep } from 'lodash'
 import { ref, defineComponent, onMounted, onBeforeUnmount, watch, reactive, computed } from 'vue'
-import { loadLocalImage, drawImageToCanvas, download, drawCanvas } from '@/util/mosaic'
+import { loadLocalImage, drawImageToCanvas, download, drawCanvas, darwScreen } from '@/util/mosaic'
 import { createCSSRule, createStyleSheet } from '@/util/dom'
 
 type Point = {
@@ -118,6 +119,12 @@ export default defineComponent({
     }
     function handleFullscreenchange(e: Event) {
       (e.target as HTMLDivElement).classList[document.fullscreenElement ? 'add' : 'remove']('fullscreen')
+    }
+    function screenShot () {
+      if (!canvasRef.value) return
+      darwScreen(canvasRef.value).then(() => {
+        wrapRef.value?.requestFullscreen()
+      }, console.warn)
     }
 
     function startCapture(e: MouseEvent) {
@@ -209,6 +216,7 @@ export default defineComponent({
       openFile,
       downloadImage,
       requestFullscreen,
+      screenShot,
       startCapture,
       startMove,
       startResize,
