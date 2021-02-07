@@ -9,3 +9,5 @@ if (window.matchMedia) {
   const media = window.matchMedia('(prefers-color-scheme: dark)');
   media.addListener(evt => setDarkTheme(evt.matches));
 }
+
+export const sleep = (t = 0) => new Promise(resolve => setTimeout(resolve, t))
