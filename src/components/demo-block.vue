@@ -31,7 +31,7 @@
   </div>
 </template>
 
-<script>
+<script lang="js">
 import { nextTick } from 'vue'
 import hljs from 'highlight.js'
 
