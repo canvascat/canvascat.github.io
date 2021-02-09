@@ -18,11 +18,11 @@ export default class Mosaic {
   inited = false;
   // mosaicCount = 4
   mosaicSize = 3;
-  brushWidth = 40; // 笔刷宽度
+  private _brushWidth = 40; // 笔刷宽度
 
   constructor(canvas: HTMLCanvasElement, options: MosaicOptions = {}) {
-    Object.assign(this, options);
     this.canvas = canvas;
+    Object.assign(this, options);
     this.ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
     // https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#the_value_of_this_within_the_handler
     this.mouseDownHandler = this.mouseDownHandler.bind(this);
@@ -32,10 +32,28 @@ export default class Mosaic {
   }
 
   async init(file: Blob) {
+
     await drawImageToCanvas(this.canvas, file);
     const { width, height } = this.canvas;
     this.originalImgData = this.ctx.getImageData(0, 0, width, height);
     this.inited = true;
+  }
+
+  set brushWidth (w: number) {
+    /* URL和xy的坐标偏移值，最后提供一个关键字值作为备用 */
+    // cursor:  url(cursor1.png) 4 12, auto;
+    // cursor:  url(cursor2.png) 2 2, pointer;
+    const r = w / 2
+    const cursor = encodeURIComponent(`<svg width="${w}" height="${w}" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="${r}" cy="${r}" r="${r - 1}" stroke="red" stroke-width="1" fill="none"/>
+      </svg>`)
+    console.log(w, `url(data:image/svg+xml;utf8,${cursor}) ${r} ${r}, auto;`)
+    this.canvas.style.cursor = `url(data:image/svg+xml;utf8, ${cursor}) ${r} ${r}, auto`;
+    this._brushWidth = w
+  }
+
+  get brushWidth () {
+    return this._brushWidth
   }
 
   destroy() {
