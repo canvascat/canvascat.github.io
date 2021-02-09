@@ -26,6 +26,10 @@
         :style="p.position.reduce((o, p) => Object.assign(o, { [p]: '-3px' }), { cursor: p.cursor })"
         class="resize-point"/>
     </div>
+    <info-box :mousePoint="mousePoint" :canvas="canvasRef" v-if="infoBoxVisible">
+      <p>{{captureLayer.w}} x {{captureLayer.h}}</p>
+      <p>RGB({{RGB}})</p>
+    </info-box>
   </div>
 </template>
 
@@ -33,8 +37,10 @@
 import { ElMessage } from 'element-plus'
 import { cloneDeep } from 'lodash'
 import { ref, defineComponent, onMounted, onBeforeUnmount, watch, reactive, computed } from 'vue'
+import InfoBox from './info-box.vue';
 import { loadLocalImage, drawImageToCanvas, download, drawCanvas, darwScreen } from '@/util/mosaic'
 import { createCSSRule, createStyleSheet } from '@/util/dom'
+import { rafThrottle } from '@/util/util';
 
 type Point = {
   x: number,
@@ -76,25 +82,40 @@ const RESIZE_POINTS: Array<ResizePoint> = [
 
 export default defineComponent({
   name: 'ImageEditor',
+
+  components: {
+    InfoBox
+  },
+
   setup() {
     const canvasRef = ref(null as Nullable<HTMLCanvasElement>)
     const wrapRef = ref(null as Nullable<HTMLDivElement>)
     const captureLayer: CaptureLayer = reactive({ x: 0, y: 0, h: 0, w: 0 })
-    let action: Nullable<CaptureActionType> = null
+    const action = ref(<Nullable<CaptureActionType>>null)
     let cursorDownPoint: Nullable<Point> = null
+    const mousePoint = ref(<Nullable<Point>>null)
+    const RGB = ref('0, 0, 0')
     let cloneCaptureLayer = cloneDeep(captureLayer)
     const bound: Bound = { x: { min: 0, max: 0 }, y: { min: 0, max: 0 }}
     let resizeMode: Array<ResizePointPosition> = []
     let stylesheet: Nullable<HTMLStyleElement> = null;
+    const infoBoxVisible = computed(() => action.value && ['CREATE', 'RESIZE'].includes(action.value))
 
     // CSSStyleDeclaration
     const captureLayerStyle = computed(() => {
       const { x, y, h, w } = captureLayer;
       const [left, top, height, width] = [x, y, h, w].map(n => `${n}px`);
-      const style = { left, top, height, width, border: '0' };
-      if (h > 0 && w > 0) style.border = '1px solid skyblue';
+      const style = { left, top, height, width };
       return style
     })
+
+    const ctx = computed(() => canvasRef.value?.getContext('2d'))
+
+    watch(mousePoint, rafThrottle((point: Point) => {
+      if (!ctx.value || !point) return
+      const { data } = ctx.value.getImageData(point.x, point.y, 1, 1)
+      RGB.value = data.slice(0, 3).join(', ')
+    }))
 
     function openFile() {
       loadLocalImage().then(file => {
@@ -114,8 +135,6 @@ export default defineComponent({
       const { width, height } = canvasRef.value
       bound.x.max = width
       bound.y.max = height
-      // Object.assign(canvasRef.value, { width, height })
-      // console
     }
     function handleFullscreenchange(e: Event) {
       (e.target as HTMLDivElement).classList[document.fullscreenElement ? 'add' : 'remove']('fullscreen')
@@ -130,21 +149,21 @@ export default defineComponent({
     function startCapture(e: MouseEvent) {
       const { x, y } = e
       Object.assign(captureLayer, { x, y })
-      action = 'CREATE'
+      action.value = 'CREATE'
       createCSSRule('*', `cursor: crosshair !important;`, (stylesheet = createStyleSheet()));
       startAction(e)
     }
 
     function startMove (e: MouseEvent) {
-      action = 'MOVE'
+      action.value = 'MOVE'
       createCSSRule('*', `cursor: move !important;`, (stylesheet = createStyleSheet()));
       startAction(e)
     }
 
     function startResize (e: MouseEvent, { position, cursor}: ResizePoint) {
-      action = 'RESIZE'
+      action.value = 'RESIZE'
       resizeMode = position
-      createCSSRule('*', `cursor: ${cursor} !important;`, (stylesheet = createStyleSheet()));
+      position.length === 1 && createCSSRule('*', `cursor: ${cursor} !important;`, (stylesheet = createStyleSheet()));
       startAction(e)
     }
 
@@ -153,17 +172,19 @@ export default defineComponent({
       e.stopImmediatePropagation()
       const { x, y } = e
       cursorDownPoint = { x, y }
+      mousePoint.value = { x, y }
       document.addEventListener('mousemove', onMousemoveDocument)
       document.addEventListener('mouseup', onMouseupDocument)
       document.onselectstart = () => false;
     }
 
     function onMousemoveDocument(e: MouseEvent) {
-      if (!cursorDownPoint || !action) return;
+      if (!cursorDownPoint || !action.value) return;
       const { x: x0, y: y0 } = cursorDownPoint;
       const { x: x1, y: y1 } = e;
       const [dx, dy] = [x1 - x0, y1 - y0]
-      switch (action) {
+      mousePoint.value = { x: x1, y: y1 }
+      switch (action.value) {
         case 'CREATE':
           captureLayer.w = Math.abs(dx)
           captureLayer.h = Math.abs(dy)
@@ -201,6 +222,7 @@ export default defineComponent({
     function onMouseupDocument(e: MouseEvent) {
       cursorDownPoint = null;
       document.onselectstart = null
+      action.value = null
       stylesheet?.parentNode?.removeChild(stylesheet)
       document.removeEventListener('mousemove', onMousemoveDocument)
       document.removeEventListener('mouseup', onMouseupDocument)
@@ -222,7 +244,11 @@ export default defineComponent({
       startResize,
 
       captureLayerStyle,
+      mousePoint,
       RESIZE_POINTS,
+      RGB,
+      captureLayer,
+      infoBoxVisible,
 
       canvasRef,
       wrapRef
@@ -250,6 +276,7 @@ export default defineComponent({
   display: flex;
   align-items: center;
   justify-content: center;
+  border: 1px solid skyblue;
 }
 .resize-point {
   position: absolute;
