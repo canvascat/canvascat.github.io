@@ -41,6 +41,7 @@ import InfoBox from './info-box.vue';
 import { loadLocalImage, drawImageToCanvas, download, drawCanvas, darwScreen } from '@/util/mosaic'
 import { createCSSRule, createStyleSheet } from '@/util/dom'
 import { rafThrottle } from '@/util/util';
+import { bound } from './config';
 
 type Point = {
   x: number,
@@ -51,14 +52,6 @@ type CaptureLayer = {
   y: number,
   w: number,
   h: number
-}
-type BoundItem = {
-  min: number,
-  max: number
-}
-type Bound = {
-  x: BoundItem,
-  y: BoundItem
 }
 
 type CaptureActionType = 'CREATE' | 'MOVE' | 'RESIZE'
@@ -96,7 +89,6 @@ export default defineComponent({
     const mousePoint = ref(<Nullable<Point>>null)
     const RGB = ref('0, 0, 0')
     let cloneCaptureLayer = cloneDeep(captureLayer)
-    const bound: Bound = { x: { min: 0, max: 0 }, y: { min: 0, max: 0 }}
     let resizeMode: Array<ResizePointPosition> = []
     let stylesheet: Nullable<HTMLStyleElement> = null;
     const infoBoxVisible = computed(() => action.value && ['CREATE', 'RESIZE'].includes(action.value))
@@ -131,7 +123,7 @@ export default defineComponent({
     function requestFullscreen() {
       if (!canvasRef.value) return
       drawCanvas(canvasRef.value, (wrapRef.value as HTMLDivElement).querySelector('img') as HTMLImageElement)
-      wrapRef.value?.requestFullscreen()
+      wrapRef.value!.requestFullscreen()
       const { width, height } = canvasRef.value
       bound.x.max = width
       bound.y.max = height
@@ -163,7 +155,7 @@ export default defineComponent({
     function startResize (e: MouseEvent, { position, cursor}: ResizePoint) {
       action.value = 'RESIZE'
       resizeMode = position
-      position.length === 1 && createCSSRule('*', `cursor: ${cursor} !important;`, (stylesheet = createStyleSheet()));
+      createCSSRule('*', `cursor: ${cursor} !important;`, (stylesheet = createStyleSheet()));
       startAction(e)
     }
 

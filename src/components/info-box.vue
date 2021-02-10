@@ -1,7 +1,7 @@
 <template>
   <div class="capture-info__wrap" :style="style">
     <div class="capture-info__view">
-      <canvas ref="canvasRef" width="120" height="88"></canvas>
+      <canvas ref="canvasRef" :width="DW" :height="DH"></canvas>
       <svg viewBox="0 0 120 88" xmlns="http://www.w3.org/2000/svg" fill="none">
         <path d="M 0 1 H 119 V87 H1 V1" stroke="red" stroke-width="2" />
         <path d="M 0 44 H 119" stroke="red" stroke-width="2" />
@@ -18,7 +18,9 @@
 // import { isEmpty } from "lodash";
 import { rafThrottle } from "@/util/util";
 import { computed, defineComponent, PropType, ref, toRefs, watch } from "vue";
+import { bound } from "./config";
 
+const SIZE = 120
 const OFFSET = { X: 10, Y: 10 }
 const ZOOM_FACTOR = 4
 const [DW, DH] = [120, 88]
@@ -41,30 +43,34 @@ export default defineComponent({
     }
   },
 
-  setup (props) {
+  setup(props) {
     // const visible = computed(() => !isEmpty(props.mousePoint))
     const { mousePoint, canvas } = toRefs(props)
     const canvasRef = ref(<Nullable<HTMLCanvasElement>>null)
     const style = computed(() => {
-      const style = <{[key: string]: string}>{}
+      const style = <{ [key: string]: string }>{}
       if (mousePoint.value) {
         const { x, y } = mousePoint.value
-        style.left = `${x + OFFSET.X}px`
-        style.top = `${y + OFFSET.Y}px`
+        const [w, h] = [OFFSET.X + SIZE, OFFSET.Y + SIZE]
+        const left = x + w > bound.x.max ? x - w : x + OFFSET.X
+        const top = y + h > bound.y.max ? y - h : y + OFFSET.Y
+        style.left = `${left}px`
+        style.top = `${top}px`
       }
       return style
     })
     // requestAnimationFrame
     watch(mousePoint, rafThrottle((point: Nullable<Point>) => {
       if (!point || !canvas.value || !canvasRef.value) return;
-      // const ctx0 = <CanvasRenderingContext2D>canvas.value.getContext('2d')
       const ctx = <CanvasRenderingContext2D>canvasRef.value.getContext('2d')
+      ctx.clearRect(0, 0, DW, DH)
       ctx.drawImage(canvas.value, point.x - SW / 2, point.y - SH / 2, SW, SH, 0, 0, DW, DH)
-      // ctx.drawImage(canvas.value, point.x - SW / 2, point.y - SH / 2, SW, SH, 0, 0, SW, SH)
     }))
     document.body.style
     return {
       canvasRef,
+
+      DW, DH,
 
       // visible,
       style
@@ -90,7 +96,6 @@ export default defineComponent({
   > canvas {
     width: 100%;
     height: 100%;
-    background-color: #fff;
   }
   > svg {
     position: absolute;
@@ -98,6 +103,7 @@ export default defineComponent({
     left: 0;
     right: 0;
     bottom: 0;
+    opacity: 0.8;
   }
 }
 .capture-info__p {
