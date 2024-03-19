@@ -1,1 +1,193 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"
+    />
+    <style>
+      .spinner {
+        --spinner-size: 30px;
+        --spinner-color: #148fcc;
+        --spinner-border-width: 4px;
+        position: relative;
+        animation: spinner-outer-rotate 2.91667s linear infinite;
+        width: var(--spinner-size);
+        height: var(--spinner-size);
+      }
+      .spinner-inner {
+        position: relative;
+        width: var(--spinner-size);
+        height: var(--spinner-size);
+        animation: spinner-sporadic-rotate 5.25s cubic-bezier(0.35, 0, 0.25, 1)
+          infinite;
+      }
+      .spinner-left,
+      .spinner-right {
+        position: absolute;
+        top: 0;
+        width: calc(var(--spinner-size) / 2);
+        height: var(--spinner-size);
+        overflow: hidden;
+      }
+      .spinner-left {
+        left: 0;
+      }
+      .spinner-right {
+        right: 0;
+      }
+      .spinner-left::after,
+      .spinner-right::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        width: var(--spinner-size);
+        height: var(--spinner-size);
+        box-sizing: border-box;
+        border: var(--spinner-border-width) solid var(--spinner-color);
+        border-bottom-color: transparent;
+        border-radius: 50%;
+      }
+      .spinner-left::after {
+        left: 0;
+        border-right-color: transparent;
+        animation: spinner-left-wobble 1.3125s cubic-bezier(0.35, 0, 0.25, 1)
+          infinite;
+      }
+      .spinner-right::after {
+        right: 0;
+        border-left-color: transparent;
+        animation: spinner-right-wobble 1.3125s cubic-bezier(0.35, 0, 0.25, 1)
+          infinite;
+      }
+      @keyframes spinner-outer-rotate {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(1turn);
+        }
+      }
+      @keyframes spinner-sporadic-rotate {
+        12.5% {
+          transform: rotate(135deg);
+        }
+        25% {
+          transform: rotate(270deg);
+        }
+        37.5% {
+          transform: rotate(405deg);
+        }
+        50% {
+          transform: rotate(540deg);
+        }
+        62.5% {
+          transform: rotate(675deg);
+        }
+        75% {
+          transform: rotate(810deg);
+        }
+        87.5% {
+          transform: rotate(945deg);
+        }
+        100% {
+          transform: rotate(3turn);
+        }
+      }
+      @keyframes spinner-left-wobble {
+        0%,
+        100% {
+          transform: rotate(130deg);
+        }
+        50% {
+          transform: rotate(-5deg);
+        }
+      }
+      @keyframes spinner-right-wobble {
+        0%,
+        100% {
+          transform: rotate(-130deg);
+        }
+        50% {
+          transform: rotate(5deg);
+        }
+      }
+    </style>
+    <style>
+      button {
+        white-space: nowrap;
+        margin-bottom: 1rem;
+      }
+      main {
+        padding-block: 30vh 100vh;
+        text-align: center;
+        margin-inline: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <button onclick="toggleAnimation(this)">pause</button>
+      <button onclick="toggleInheritBoxSizing(this)">
+        add <code>box-sizing: inherit;</code>
+      </button>
+      <button onclick="toggleInheritBorderRadius(this)">
+        add <code>border-radius: inherit;</code>
+      </button>
+      <div class="spinner">
+        <div class="spinner-inner">
+          <div class="spinner-left"></div>
+          <div class="spinner-right"></div>
+        </div>
+      </div>
+      <br />
+      <img
+        src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzdweCIgIGhlaWdodD0iNzdweCIgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIiBjbGFzcz0ibGRzLXNxdWFyZSI+CiAgICA8ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgyMCAyMCkiPgogICAgICA8cmVjdCB4PSItMTUiIHk9Ii0xNSIgd2lkdGg9IjMwIiBoZWlnaHQ9IjMwIiBmaWxsPSIjZTE1YjY0IiB0cmFuc2Zvcm09InNjYWxlKDAuODY4MDI0IDAuODY4MDI0KSI+CiAgICAgICAgPGFuaW1hdGVUcmFuc2Zvcm0gYXR0cmlidXRlTmFtZT0idHJhbnNmb3JtIiB0eXBlPSJzY2FsZSIgY2FsY01vZGU9InNwbGluZSIgdmFsdWVzPSIxOzE7MC4yOzE7MSIga2V5VGltZXM9IjA7MC4yOzAuNTswLjg7MSIgZHVyPSIxcyIga2V5U3BsaW5lcz0iMC41IDAuNSAwLjUgMC41OzAgMC4xIDAuOSAxOzAuMSAwIDEgMC45OzAuNSAwLjUgMC41IDAuNSIgYmVnaW49Ii0wLjRzIiByZXBlYXRDb3VudD0iaW5kZWZpbml0ZSI+PC9hbmltYXRlVHJhbnNmb3JtPgogICAgICA8L3JlY3Q+CiAgICA8L2c+CiAgICA8ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSg1MCAyMCkiPgogICAgICA8cmVjdCB4PSItMTUiIHk9Ii0xNSIgd2lkdGg9IjMwIiBoZWlnaHQ9IjMwIiBmaWxsPSIjZjQ3ZTYwIiB0cmFuc2Zvcm09InNjYWxlKDAuNTgzOTQgMC41ODM5NCkiPgogICAgICAgIDxhbmltYXRlVHJhbnNmb3JtIGF0dHJpYnV0ZU5hbWU9InRyYW5zZm9ybSIgdHlwZT0ic2NhbGUiIGNhbGNNb2RlPSJzcGxpbmUiIHZhbHVlcz0iMTsxOzAuMjsxOzEiIGtleVRpbWVzPSIwOzAuMjswLjU7MC44OzEiIGR1cj0iMXMiIGtleVNwbGluZXM9IjAuNSAwLjUgMC41IDAuNTswIDAuMSAwLjkgMTswLjEgMCAxIDAuOTswLjUgMC41IDAuNSAwLjUiIGJlZ2luPSItMC4zcyIgcmVwZWF0Q291bnQ9ImluZGVmaW5pdGUiPjwvYW5pbWF0ZVRyYW5zZm9ybT4KICAgICAgPC9yZWN0PgogICAgPC9nPgogICAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoODAgMjApIj4KICAgICAgPHJlY3QgeD0iLTE1IiB5PSItMTUiIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCIgZmlsbD0iI2Y4YjI2YSIgdHJhbnNmb3JtPSJzY2FsZSgwLjMzMjU5NCAwLjMzMjU5NCkiPgogICAgICAgIDxhbmltYXRlVHJhbnNmb3JtIGF0dHJpYnV0ZU5hbWU9InRyYW5zZm9ybSIgdHlwZT0ic2NhbGUiIGNhbGNNb2RlPSJzcGxpbmUiIHZhbHVlcz0iMTsxOzAuMjsxOzEiIGtleVRpbWVzPSIwOzAuMjswLjU7MC44OzEiIGR1cj0iMXMiIGtleVNwbGluZXM9IjAuNSAwLjUgMC41IDAuNTswIDAuMSAwLjkgMTswLjEgMCAxIDAuOTswLjUgMC41IDAuNSAwLjUiIGJlZ2luPSItMC4ycyIgcmVwZWF0Q291bnQ9ImluZGVmaW5pdGUiPjwvYW5pbWF0ZVRyYW5zZm9ybT4KICAgICAgPC9yZWN0PgogICAgPC9nPgogICAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMjAgNTApIj4KICAgICAgPHJlY3QgeD0iLTE1IiB5PSItMTUiIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCIgZmlsbD0iI2Y0N2U2MCIgdHJhbnNmb3JtPSJzY2FsZSgwLjU4Mzk0IDAuNTgzOTQpIj4KICAgICAgICA8YW5pbWF0ZVRyYW5zZm9ybSBhdHRyaWJ1dGVOYW1lPSJ0cmFuc2Zvcm0iIHR5cGU9InNjYWxlIiBjYWxjTW9kZT0ic3BsaW5lIiB2YWx1ZXM9IjE7MTswLjI7MTsxIiBrZXlUaW1lcz0iMDswLjI7MC41OzAuODsxIiBkdXI9IjFzIiBrZXlTcGxpbmVzPSIwLjUgMC41IDAuNSAwLjU7MCAwLjEgMC45IDE7MC4xIDAgMSAwLjk7MC41IDAuNSAwLjUgMC41IiBiZWdpbj0iLTAuM3MiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIj48L2FuaW1hdGVUcmFuc2Zvcm0+CiAgICAgIDwvcmVjdD4KICAgIDwvZz4KICAgIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDUwIDUwKSI+CiAgICAgIDxyZWN0IHg9Ii0xNSIgeT0iLTE1IiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIGZpbGw9IiNmOGIyNmEiIHRyYW5zZm9ybT0ic2NhbGUoMC4zMzI1OTQgMC4zMzI1OTQpIj4KICAgICAgICA8YW5pbWF0ZVRyYW5zZm9ybSBhdHRyaWJ1dGVOYW1lPSJ0cmFuc2Zvcm0iIHR5cGU9InNjYWxlIiBjYWxjTW9kZT0ic3BsaW5lIiB2YWx1ZXM9IjE7MTswLjI7MTsxIiBrZXlUaW1lcz0iMDswLjI7MC41OzAuODsxIiBkdXI9IjFzIiBrZXlTcGxpbmVzPSIwLjUgMC41IDAuNSAwLjU7MCAwLjEgMC45IDE7MC4xIDAgMSAwLjk7MC41IDAuNSAwLjUgMC41IiBiZWdpbj0iLTAuMnMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIj48L2FuaW1hdGVUcmFuc2Zvcm0+CiAgICAgIDwvcmVjdD4KICAgIDwvZz4KICAgIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDgwIDUwKSI+CiAgICAgIDxyZWN0IHg9Ii0xNSIgeT0iLTE1IiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIGZpbGw9IiNhYmJkODEiIHRyYW5zZm9ybT0ic2NhbGUoMC4yNTUyMjYgMC4yNTUyMjYpIj4KICAgICAgICA8YW5pbWF0ZVRyYW5zZm9ybSBhdHRyaWJ1dGVOYW1lPSJ0cmFuc2Zvcm0iIHR5cGU9InNjYWxlIiBjYWxjTW9kZT0ic3BsaW5lIiB2YWx1ZXM9IjE7MTswLjI7MTsxIiBrZXlUaW1lcz0iMDswLjI7MC41OzAuODsxIiBkdXI9IjFzIiBrZXlTcGxpbmVzPSIwLjUgMC41IDAuNSAwLjU7MCAwLjEgMC45IDE7MC4xIDAgMSAwLjk7MC41IDAuNSAwLjUgMC41IiBiZWdpbj0iLTAuMXMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIj48L2FuaW1hdGVUcmFuc2Zvcm0+CiAgICAgIDwvcmVjdD4KICAgIDwvZz4KICAgIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDIwIDgwKSI+CiAgICAgIDxyZWN0IHg9Ii0xNSIgeT0iLTE1IiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIGZpbGw9IiNmOGIyNmEiIHRyYW5zZm9ybT0ic2NhbGUoMC4zMzI1OTQgMC4zMzI1OTQpIj4KICAgICAgICA8YW5pbWF0ZVRyYW5zZm9ybSBhdHRyaWJ1dGVOYW1lPSJ0cmFuc2Zvcm0iIHR5cGU9InNjYWxlIiBjYWxjTW9kZT0ic3BsaW5lIiB2YWx1ZXM9IjE7MTswLjI7MTsxIiBrZXlUaW1lcz0iMDswLjI7MC41OzAuODsxIiBkdXI9IjFzIiBrZXlTcGxpbmVzPSIwLjUgMC41IDAuNSAwLjU7MCAwLjEgMC45IDE7MC4xIDAgMSAwLjk7MC41IDAuNSAwLjUgMC41IiBiZWdpbj0iLTAuMnMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIj48L2FuaW1hdGVUcmFuc2Zvcm0+CiAgICAgIDwvcmVjdD4KICAgIDwvZz4KICAgIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDUwIDgwKSI+CiAgICAgIDxyZWN0IHg9Ii0xNSIgeT0iLTE1IiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIGZpbGw9IiNhYmJkODEiIHRyYW5zZm9ybT0ic2NhbGUoMC4yNTUyMjYgMC4yNTUyMjYpIj4KICAgICAgICA8YW5pbWF0ZVRyYW5zZm9ybSBhdHRyaWJ1dGVOYW1lPSJ0cmFuc2Zvcm0iIHR5cGU9InNjYWxlIiBjYWxjTW9kZT0ic3BsaW5lIiB2YWx1ZXM9IjE7MTswLjI7MTsxIiBrZXlUaW1lcz0iMDswLjI7MC41OzAuODsxIiBkdXI9IjFzIiBrZXlTcGxpbmVzPSIwLjUgMC41IDAuNSAwLjU7MCAwLjEgMC45IDE7MC4xIDAgMSAwLjk7MC41IDAuNSAwLjUgMC41IiBiZWdpbj0iLTAuMXMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIj48L2FuaW1hdGVUcmFuc2Zvcm0+CiAgICAgIDwvcmVjdD4KICAgIDwvZz4KICAgIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDgwIDgwKSI+CiAgICAgIDxyZWN0IHg9Ii0xNSIgeT0iLTE1IiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIGZpbGw9IiM4NDliODciIHRyYW5zZm9ybT0ic2NhbGUoMC40OTY1ODYgMC40OTY1ODYpIj4KICAgICAgICA8YW5pbWF0ZVRyYW5zZm9ybSBhdHRyaWJ1dGVOYW1lPSJ0cmFuc2Zvcm0iIHR5cGU9InNjYWxlIiBjYWxjTW9kZT0ic3BsaW5lIiB2YWx1ZXM9IjE7MTswLjI7MTsxIiBrZXlUaW1lcz0iMDswLjI7MC41OzAuODsxIiBkdXI9IjFzIiBrZXlTcGxpbmVzPSIwLjUgMC41IDAuNSAwLjU7MCAwLjEgMC45IDE7MC4xIDAgMSAwLjk7MC41IDAuNSAwLjUgMC41IiBiZWdpbj0iMHMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIj48L2FuaW1hdGVUcmFuc2Zvcm0+CiAgICAgIDwvcmVjdD4KICAgIDwvZz4KICA8L3N2Zz4="
+        alt="svg loading"
+      />
+    </main>
+  </body>
+  <script>
+    // `*,*::after,*::before { box-sizing: inherit; animation-play-state: paused !important;}`
+    function createStylesheet(textContent) {
+      const stylesheet = document.createElement("style");
+      stylesheet.textContent = textContent;
+      document.head.appendChild(stylesheet);
+      return stylesheet;
+    }
+    function createStyleForEvery(content) {
+      return createStylesheet(`*,*::after,*::before { ${content}}`);
+    }
+
+    function toggleFactory(style, html) {
+      html = html || [
+        `add <code>${style}</code>`,
+        `remove <code>${style}</code>`,
+      ];
+      return function toggle(el) {
+        if (toggle.reset) {
+          toggle.reset();
+        } else {
+          const stylesheet = createStyleForEvery(style);
+          el.innerHTML = html[1];
+          toggle.reset = () => {
+            stylesheet.remove();
+            el.innerHTML = html[0];
+            toggle.reset = null;
+          };
+        }
+      };
+    }
+
+    window.toggleInheritBoxSizing = toggleFactory("box-sizing: inherit;");
+    window.toggleAnimation = toggleFactory(
+      "animation-play-state: paused !important;",
+      ["pause", "play"]
+    );
+    window.toggleInheritBorderRadius = toggleFactory("border-radius: inherit;");
+  </script>
+</html>
 
