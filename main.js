@@ -21,18 +21,18 @@ input.addEventListener('change', async event => {
     },
 
     plugins: [
-    //   {
-    //     name: 'preset-default',
-    //     params: {
-    //       overrides: {
-    //         removeUselessStrokeAndFill: {
-    //           stroke: true,
-    //           fill: true,
-    //           removeNone: true
-    //         }
-    //       },
-    //     },
-    //   }
+      {
+        name: 'preset-default',
+        params: {
+          overrides: {
+            removeUselessStrokeAndFill: {
+              stroke: true,
+              fill: true,
+              removeNone: true
+            }
+          },
+        },
+      },
       {
         name: "removeAttrs",
         params: {
