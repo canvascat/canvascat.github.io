@@ -20,26 +20,26 @@ input.addEventListener('change', async event => {
       indent: 4
     },
 
-    plugins: [
-      {
-        name: 'preset-default',
-        params: {
-          overrides: {
-            removeUselessStrokeAndFill: {
-              stroke: true,
-              fill: true,
-              removeNone: true
-            }
-          },
-        },
-      }
-      // {
-      //   name: "removeAttrs",
-      //   params: {
-      //     attrs: 'fill',
-      //   }
-      // }
-    ]
+    // plugins: [
+    //   {
+    //     name: 'preset-default',
+    //     params: {
+    //       overrides: {
+    //         removeUselessStrokeAndFill: {
+    //           stroke: true,
+    //           fill: true,
+    //           removeNone: true
+    //         }
+    //       },
+    //     },
+    //   }
+    //   // {
+    //   //   name: "removeAttrs",
+    //   //   params: {
+    //   //     attrs: 'fill',
+    //   //   }
+    //   // }
+    // ]
   }).data
 
   const markupElements = [...document.querySelectorAll('.markup')]
