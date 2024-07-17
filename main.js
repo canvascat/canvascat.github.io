@@ -20,7 +20,7 @@ input.addEventListener('change', async event => {
       indent: 4
     },
 
-    // plugins: [
+    plugins: [
     //   {
     //     name: 'preset-default',
     //     params: {
@@ -33,13 +33,13 @@ input.addEventListener('change', async event => {
     //       },
     //     },
     //   }
-    //   // {
-    //   //   name: "removeAttrs",
-    //   //   params: {
-    //   //     attrs: 'fill',
-    //   //   }
-    //   // }
-    // ]
+      {
+        name: "removeAttrs",
+        params: {
+          attrs: 'fill',
+        }
+      }
+    ]
   }).data
 
   const markupElements = [...document.querySelectorAll('.markup')]
