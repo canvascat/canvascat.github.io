@@ -125,14 +125,9 @@
           }, 100);
         };
       }
-      visualViewport.addEventListener(
-        "scroll",
-        logFactory("visualViewportScroll")
-      );
-      visualViewport.addEventListener(
-        "resize",
-        logFactory("visualViewportResize")
-      );
+      visualViewport.addEventListener("scroll", logFactory("viewportScroll"));
+      visualViewport.addEventListener("resize", logFactory("viewportResize"));
+      window.addEventListener("resize", logFactory("windowResize"));
     }
   </script>
 </html>
