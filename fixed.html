@@ -41,16 +41,22 @@
         margin: 0;
         border-bottom: 2px solid slategrey;
       }
-      .fixedBottom {
+      .fixedBottom,
+      .fixedBottom1 {
         display: inline-block;
         position: fixed;
         bottom: 0;
         background: bisque;
         border: 2px solid seagreen;
         padding: 0.5rem 1rem;
-        right: 0;
         opacity: 0.6;
-        transform: translateY(var(--bottom-offset, 0));
+      }
+      .fixedBottom {
+        right: 0;
+      }
+      .fixedBottom1 {
+        left: 0;
+        transform: translateY(var(--offset-y, 0));
       }
     </style>
   </head>
@@ -67,31 +73,38 @@
     <div contenteditable="true"></div>
     <footer style="bottom: 0">footer</footer>
     <div class="fixedBottom">fixed bottom</div>
+    <div class="fixedBottom1">fixed bottom1</div>
   </body>
   <script>
+    // https://github.com/bokand/bokand.github.io/blob/b5d684e87ee23938433063d369f8c4d5a32c3a76/web_viewports_explainer.md#safari-2
     document.querySelector(
       "main"
     ).innerHTML += `<p>${navigator.appVersion}</p>`;
-    // document.querySelector('header').textContent = navigator.appVersion;
-    let bottomOffset = 0;
-    function logFactory(name) {
-      let key = null;
-      return () => {
-        if (window.innerHeight - visualViewport.height !== bottomOffset) {
-          bottomOffset = window.innerHeight - visualViewport.height;
-          document.documentElement.style[
-            "--bottom-offset"
-          ] = `-${bottomOffset}px`;
-        }
+    if ("visualViewport" in window) {
+      let bottomOffset = 0;
+      function logFactory(name) {
+        let key = null;
+        return () => {
+          const offset =
+            window.innerHeight - visualViewport.height + viewport.offsetTop;
+          if (offset !== bottomOffset) {
+            bottomOffset = offset;
+            document.documentElement.style["--offset-y"] = `${-offset}px`;
+            document.querySelectorAll(".fixedBottom").forEach((el) => {
+              el.style.transform = `translateY(${-offset}px)`;
+            });
+          }
 
-        if (key !== null) {
-          clearTimeout(key);
-          key = null;
-        }
-        key = setTimeout(() => {
-          key = null;
-          document.querySelector("main").innerHTML += `<details>
-      <summary>${name} ====\></summary>
+          if (key !== null) {
+            clearTimeout(key);
+            key = null;
+          }
+          key = setTimeout(() => {
+            key = null;
+            document.querySelector("main").innerHTML += `<details>
+      <summary>${name} ${
+              window.innerHeight === visualViewport.height
+            } ====\></summary>
       <pre>${JSON.stringify(
         {
           "visualViewport.offsetTop": visualViewport.offsetTop,
@@ -104,18 +117,17 @@
         2
       )}</pre>
     </details>`;
-        }, 100);
-      };
+          }, 100);
+        };
+      }
+      visualViewport.addEventListener(
+        "scroll",
+        logFactory("visualViewportScroll")
+      );
+      visualViewport.addEventListener(
+        "resize",
+        logFactory("visualViewportResize")
+      );
     }
-    window.visualViewport.addEventListener(
-      "scroll",
-      logFactory("visualViewport scroll")
-    );
-    window.visualViewport.addEventListener(
-      "resize",
-      logFactory("visualViewport resize")
-    );
-    window.addEventListener("scroll", logFactory("window scroll"));
-    window.addEventListener("resize", logFactory("window resize"));
   </script>
 </html>
