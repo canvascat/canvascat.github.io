@@ -41,8 +41,8 @@
         margin: 0;
         border-bottom: 2px solid slategrey;
       }
-      .fixedBottom,
-      .fixedTop {
+
+      .fixed {
         display: inline-block;
         position: fixed;
 
@@ -50,13 +50,18 @@
         border: 2px solid seagreen;
         padding: 0.5rem 1rem;
         opacity: 0.6;
+      }
+      .fixed.bottom-left {
+        bottom: 0;
+        left: 0;
+      }
+      .fixed.bottom-right {
+        bottom: 0;
         right: 0;
       }
-      .fixedBottom {
-        bottom: 0;
-      }
-      .fixedTop {
+      .fixed.top-right {
         top: 0;
+        right: 0;
       }
     </style>
   </head>
@@ -65,15 +70,16 @@
     <textarea rows="10"></textarea>
 
     <div contenteditable="true">
-      <main contenteditable="false"></main>
+      <main></main>
       <p contenteditable="false">no delete</p>
       <br /><br /><br />
     </div>
     <div contenteditable="true"></div>
     <div contenteditable="true"></div>
     <footer style="bottom: 0">footer</footer>
-    <div class="fixedBottom">fixed bottom</div>
-    <div class="fixedTop">fixedTop</div>
+    <div class="fixed bottom-right">bottom-right</div>
+    <div class="fixed bottom-left">bottom-left</div>
+    <div class="fixed top-right">top-right</div>
   </body>
   <script>
     // https://github.com/bokand/bokand.github.io/blob/b5d684e87ee23938433063d369f8c4d5a32c3a76/web_viewports_explainer.md#safari-2
@@ -81,24 +87,39 @@
       "main"
     ).innerHTML += `<p>${navigator.appVersion}</p>`;
     if ("visualViewport" in window) {
-      let bottomOffset = 0;
-      let topOffset = 0;
+      function fixedFactory(
+        offset = () => visualViewport.offsetTop,
+        selectors = ".fixed.top-right"
+      ) {
+        let latest = null;
+        return () => {
+          const current = offset();
+          const dom = document.querySelector(selectors);
+          if (!dom || current === latest) return;
+          dom.style.transform = `translateY(${(latest = current)}px)`;
+        };
+      }
 
+      const fixedBottomLeft = fixedFactory(
+        () =>
+          visualViewport.height - window.innerHeight + visualViewport.offsetTop,
+        ".fixed.bottom-left"
+      );
+      const fixedBottomRight = fixedFactory(
+        () => visualViewport.height - window.innerHeight,
+        ".fixed.bottom-right"
+      );
+      const fixedTopRight = fixedFactory(
+        () => visualViewport.offsetTop,
+        ".fixed.top-right"
+      );
+      logFactory("test");
       function logFactory(name) {
         let key = null;
         return () => {
-          if (visualViewport.height - window.innerHeight !== bottomOffset) {
-            document.querySelector(
-              ".fixedBottom"
-            ).style.transform = `translateY(${(bottomOffset =
-              visualViewport.height - window.innerHeight)}px)`;
-          }
-          if (visualViewport.offsetTop !== topOffset) {
-            document.querySelector(
-              ".fixedTop"
-            ).style.transform = `translateY(${(topOffset =
-              visualViewport.offsetTop)}px)`;
-          }
+          fixedBottomLeft();
+          fixedBottomRight();
+          fixedTopRight();
 
           if (key !== null) {
             clearTimeout(key);
@@ -125,9 +146,10 @@
           }, 100);
         };
       }
-      visualViewport.addEventListener("scroll", logFactory("viewportScroll"));
-      visualViewport.addEventListener("resize", logFactory("viewportResize"));
-      window.addEventListener("resize", logFactory("windowResize"));
+      visualViewport.addEventListener("scroll", logFactory("viewport scroll"));
+      visualViewport.addEventListener("resize", logFactory("viewport resize"));
+      window.addEventListener("resize", logFactory("window resize"));
+      // window.addEventListener("scroll", logFactory("window scroll"));
     }
   </script>
 </html>
