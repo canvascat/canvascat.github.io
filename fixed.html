@@ -1,8 +1,11 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>fixed test</title>
     <style>
       * {
@@ -18,15 +21,12 @@
         border: 2px solid blueviolet;
         backdrop-filter: blur(5px);
       }
-      /* header {
-        height: 6rem;
-      } */
-      main,
+
       textarea,
-      div[contenteditable='true'] {
-        width: calc(100% - 4rem);
+      div[contenteditable="true"] {
+        width: calc(100% - 2rem);
         margin-block: 40px;
-        margin-inline: 2rem;
+        margin-inline: 1rem;
         display: block;
         border-radius: 0 !important;
         resize: both;
@@ -34,43 +34,71 @@
         min-height: 100px;
       }
       main {
+        width: 100%;
         overflow: auto;
         height: 50vh;
         padding-inline: 1rem;
+        margin: 0;
+        border-bottom: 2px solid slategrey;
+      }
+      .fixedBottom {
+        display: inline-block;
+        position: fixed;
+        bottom: 0;
+        background: bisque;
+        border: 2px solid seagreen;
+        padding: 0.5rem 1rem;
+        right: 0;
+        opacity: 0.6;
+        transform: translateY(var(--bottom-offset, 0));
       }
     </style>
   </head>
   <body style="margin: 0">
     <header style="top: 0">header</header>
     <textarea rows="10"></textarea>
-    <main></main>
 
-    <div contenteditable="true"></div>
+    <div contenteditable="true">
+      <main contenteditable="false"></main>
+      <p contenteditable="false">no delete</p>
+      <br /><br /><br />
+    </div>
     <div contenteditable="true"></div>
     <div contenteditable="true"></div>
     <footer style="bottom: 0">footer</footer>
+    <div class="fixedBottom">fixed bottom</div>
   </body>
   <script>
-    document.querySelector('main').innerHTML += `<p>${navigator.appVersion}</p>`;
+    document.querySelector(
+      "main"
+    ).innerHTML += `<p>${navigator.appVersion}</p>`;
     // document.querySelector('header').textContent = navigator.appVersion;
+    let bottomOffset = 0;
     function logFactory(name) {
       let key = null;
       return () => {
+        if (window.innerHeight - visualViewport.height !== bottomOffset) {
+          bottomOffset = window.innerHeight - visualViewport.height;
+          document.documentElement.style[
+            "--bottom-offset"
+          ] = `-${bottomOffset}px`;
+        }
+
         if (key !== null) {
           clearTimeout(key);
           key = null;
         }
         key = setTimeout(() => {
           key = null;
-          document.querySelector('main').innerHTML += `<details>
+          document.querySelector("main").innerHTML += `<details>
       <summary>${name} ====\></summary>
       <pre>${JSON.stringify(
         {
-          'visualViewport.offsetTop': visualViewport.offsetTop,
-          'visualViewport.pageTop': visualViewport.pageTop,
-          'visualViewport.height': visualViewport.height,
-          'window.innerHeight': window.innerHeight,
-          'window.outerHeight': window.outerHeight,
+          "visualViewport.offsetTop": visualViewport.offsetTop,
+          "visualViewport.pageTop": visualViewport.pageTop,
+          "visualViewport.height": visualViewport.height,
+          "window.innerHeight": window.innerHeight,
+          "window.outerHeight": window.outerHeight,
         },
         null,
         2
@@ -79,9 +107,15 @@
         }, 100);
       };
     }
-    window.visualViewport.addEventListener('scroll', logFactory('visualViewport scroll'));
-    window.visualViewport.addEventListener('resize', logFactory('visualViewport resize'));
-    window.addEventListener('scroll', logFactory('window scroll'));
-    window.addEventListener('resize', logFactory('window resize'));
+    window.visualViewport.addEventListener(
+      "scroll",
+      logFactory("visualViewport scroll")
+    );
+    window.visualViewport.addEventListener(
+      "resize",
+      logFactory("visualViewport resize")
+    );
+    window.addEventListener("scroll", logFactory("window scroll"));
+    window.addEventListener("resize", logFactory("window resize"));
   </script>
 </html>
