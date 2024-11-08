@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>fixed test</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      header,
+      footer {
+        height: 40px;
+        position: fixed;
+        width: 100%;
+        /* background: blanchedalmond; */
+        background: rgba(255, 255, 255, 0.5);
+        border: 2px solid blueviolet;
+        backdrop-filter: blur(5px);
+      }
+      /* header {
+        height: 6rem;
+      } */
+      main,
+      textarea,
+      div[contenteditable='true'] {
+        width: calc(100% - 4rem);
+        margin-block: 40px;
+        margin-inline: 2rem;
+        display: block;
+        border-radius: 0 !important;
+        resize: both;
+        border: 2px solid slategrey;
+        min-height: 100px;
+      }
+      main {
+        overflow: auto;
+        height: 50vh;
+        padding-inline: 1rem;
+      }
+    </style>
+  </head>
+  <body style="margin: 0">
+    <header style="top: 0">header</header>
+    <textarea rows="10"></textarea>
+    <main></main>
+
+    <div contenteditable="true"></div>
+    <div contenteditable="true"></div>
+    <div contenteditable="true"></div>
+    <footer style="bottom: 0">footer</footer>
+  </body>
+  <script>
+    document.querySelector('main').innerHTML += `<p>${navigator.appVersion}</p>`;
+    // document.querySelector('header').textContent = navigator.appVersion;
+    function logFactory(name) {
+      let key = null;
+      return () => {
+        if (key !== null) {
+          clearTimeout(key);
+          key = null;
+        }
+        key = setTimeout(() => {
+          key = null;
+          document.querySelector('main').innerHTML += `<details>
+      <summary>${name} ====\></summary>
+      <pre>${JSON.stringify(
+        {
+          'visualViewport.offsetTop': visualViewport.offsetTop,
+          'visualViewport.pageTop': visualViewport.pageTop,
+          'visualViewport.height': visualViewport.height,
+          'window.innerHeight': window.innerHeight,
+          'window.outerHeight': window.outerHeight,
+        },
+        null,
+        2
+      )}</pre>
+    </details>`;
+        }, 100);
+      };
+    }
+    window.visualViewport.addEventListener('scroll', logFactory('visualViewport scroll'));
+    window.visualViewport.addEventListener('resize', logFactory('visualViewport resize'));
+    window.addEventListener('scroll', logFactory('window scroll'));
+    window.addEventListener('resize', logFactory('window resize'));
+  </script>
+</html>
