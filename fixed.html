@@ -82,11 +82,14 @@
     ).innerHTML += `<p>${navigator.appVersion}</p>`;
     if ("visualViewport" in window) {
       let bottomOffset = 0;
+
       function logFactory(name) {
         let key = null;
         return () => {
           const offset =
-            window.innerHeight - visualViewport.height + viewport.offsetTop;
+            window.innerHeight -
+            visualViewport.height +
+            visualViewport.offsetTop;
           if (offset !== bottomOffset) {
             bottomOffset = offset;
             document.documentElement.style["--offset-y"] = `${-offset}px`;
