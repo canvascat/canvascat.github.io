@@ -110,11 +110,14 @@
       }
 
       const fixedBottomLeft = fixedFactory(
-        () => visualViewport.height - layoutViewport + visualViewport.offsetTop,
+        () =>
+          visualViewport.height -
+          layoutViewportHeight +
+          visualViewport.offsetTop,
         ".fixed.bottom-left"
       );
       const fixedBottomRight = fixedFactory(
-        () => visualViewport.height - layoutViewport,
+        () => visualViewport.height - layoutViewportHeight,
         ".fixed.bottom-right"
       );
       const fixedTopRight = fixedFactory(
@@ -136,14 +139,13 @@
           key = setTimeout(() => {
             key = null;
             document.querySelector("main").innerHTML += `<details>
-      <summary>${name} | ${~~layoutViewport} | ${~~window.innerHeight} | ${~~visualViewport.offsetTop} | ${~~visualViewport.height} | ====\></summary>
+      <summary>${name} | ${~~layoutViewportHeight} | ${~~window.innerHeight} | ${~~visualViewport.offsetTop} | ${~~visualViewport.height} | ====\></summary>
       <pre>${JSON.stringify(
         {
           "visualViewport.offsetTop": visualViewport.offsetTop,
-          "visualViewport.pageTop": visualViewport.pageTop,
           "visualViewport.height": visualViewport.height,
           "window.innerHeight": window.innerHeight,
-          layoutViewport: layoutViewport,
+          layoutViewportHeight: layoutViewportHeight,
         },
         null,
         2
