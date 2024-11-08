@@ -42,21 +42,21 @@
         border-bottom: 2px solid slategrey;
       }
       .fixedBottom,
-      .fixedBottom1 {
+      .fixedTop {
         display: inline-block;
         position: fixed;
-        bottom: 0;
+
         background: bisque;
         border: 2px solid seagreen;
         padding: 0.5rem 1rem;
         opacity: 0.6;
-      }
-      .fixedBottom {
         right: 0;
       }
-      .fixedBottom1 {
-        left: 0;
-        transform: translateY(var(--offset-y, 0));
+      .fixedBottom {
+        bottom: 0;
+      }
+      .fixedTop {
+        top: 0;
       }
     </style>
   </head>
@@ -73,7 +73,7 @@
     <div contenteditable="true"></div>
     <footer style="bottom: 0">footer</footer>
     <div class="fixedBottom">fixed bottom</div>
-    <div class="fixedBottom1">fixed bottom1</div>
+    <div class="fixedTop">fixedTop</div>
   </body>
   <script>
     // https://github.com/bokand/bokand.github.io/blob/b5d684e87ee23938433063d369f8c4d5a32c3a76/web_viewports_explainer.md#safari-2
@@ -82,20 +82,22 @@
     ).innerHTML += `<p>${navigator.appVersion}</p>`;
     if ("visualViewport" in window) {
       let bottomOffset = 0;
+      let topOffset = 0;
 
       function logFactory(name) {
         let key = null;
         return () => {
-          const offset =
-            window.innerHeight -
-            visualViewport.height +
-            visualViewport.offsetTop;
-          if (offset !== bottomOffset) {
-            bottomOffset = offset;
-            document.documentElement.style["--offset-y"] = `${-offset}px`;
-            document.querySelectorAll(".fixedBottom").forEach((el) => {
-              el.style.transform = `translateY(${-offset}px)`;
-            });
+          if (visualViewport.height - window.innerHeight !== bottomOffset) {
+            document.querySelector(
+              ".fixedBottom"
+            ).style.transform = `translateY(${(bottomOffset =
+              visualViewport.height - window.innerHeight)}px)`;
+          }
+          if (visualViewport.offsetTop !== topOffset) {
+            document.querySelector(
+              ".fixedTop"
+            ).style.transform = `translateY(${(topOffset =
+              visualViewport.offsetTop)}px)`;
           }
 
           if (key !== null) {
@@ -105,9 +107,9 @@
           key = setTimeout(() => {
             key = null;
             document.querySelector("main").innerHTML += `<details>
-      <summary>${name} ${
-              window.innerHeight === visualViewport.height
-            } ====\></summary>
+      <summary>${name} | ${visualViewport.offsetTop} | ${
+              window.innerHeight - visualViewport.height
+            } | ====\></summary>
       <pre>${JSON.stringify(
         {
           "visualViewport.offsetTop": visualViewport.offsetTop,
