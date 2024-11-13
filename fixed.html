@@ -8,8 +8,48 @@
     />
     <title>fixed test</title>
     <style>
+      @property --vh {
+        syntax: "<length>";
+        inherits: true;
+        initial-value: 100vh;
+      }
+      @property --vw {
+        syntax: "<length>";
+        inherits: true;
+        initial-value: 100vw;
+      }
+      @property --dvh {
+        syntax: "<length>";
+        inherits: true;
+        initial-value: 100dvh;
+      }
+      @property --dvw {
+        syntax: "<length>";
+        inherits: true;
+        initial-value: 100dvw;
+      }
+      :root {
+        --w: tan(atan2(var(--vw), 1px));
+        --h: tan(atan2(var(--vh), 1px));
+        --dw: tan(atan2(var(--dvw), 1px));
+        --dh: tan(atan2(var(--dvh), 1px));
+      }
+
       * {
         box-sizing: border-box;
+      }
+
+      body::after {
+        counter-reset: w var(--w) h var(--h) dw var(--dw) dh var(--dh);
+        position: fixed;
+        inset: 0;
+        width: fit-content;
+        height: fit-content;
+        margin: auto;
+        content: "w:" counter(w) " h:" counter(h) " dw:" counter(dw) " dh:"
+          counter(dh);
+        background: rgba(143, 142, 142, 0.8);
+        pointer-events: none;
       }
 
       #layoutViewport {
